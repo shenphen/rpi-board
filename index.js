@@ -8,6 +8,9 @@ const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000/api/params';
 setInterval(() => {
     sensor.read(DHT_SENSOR, GPIO_PORT, (err, temperature, humidity) => {
         if (!err) {
+
+            const time = `${Date.now()}`.slice(0, -3);
+
             console.log('temp: ' + temperature.toFixed(1) + '°C, ' +
                 'humidity: ' + humidity.toFixed(1) + '%'
             );
@@ -15,7 +18,7 @@ setInterval(() => {
             fetch(SERVER_URL, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: {temperature, humidity}
+                body: JSON.stringify({temperature, humidity, time})
             })
             .then(() => console.log('send success'))
             .catch(err => console.log(err))
