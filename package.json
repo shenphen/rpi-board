@@ -1,0 +1,23 @@
+{
+  "name": "rpi-board",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shenphen/rpi-board.git"
+  },
+  "author": "Adam Połubek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shenphen/rpi-board/issues"
+  },
+  "homepage": "https://github.com/shenphen/rpi-board#readme",
+  "dependencies": {
+    "node-fetch": "^1.7.3",
+    "node-dht-sensor": "^0.0.32"
+  }
+}
