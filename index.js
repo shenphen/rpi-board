@@ -1,5 +1,5 @@
-import sensor from 'node-dht-sensor';
-import fetch from 'node-fetch';
+const sensor = require('node-dht-sensor');
+const fetch = require('node-fetch');
 
 const GPIO_PORT = process.env.GPIO_PORT || 21;
 const DHT_SENSOR = process.env.DHT_SENSOR || 11;
