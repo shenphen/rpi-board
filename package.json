@@ -17,7 +17,10 @@
   },
   "homepage": "https://github.com/shenphen/rpi-board#readme",
   "dependencies": {
+    "johnny-five": "^0.11.6",
+    "moment": "^2.19.1",
+    "node-dht-sensor": "^0.0.32",
     "node-fetch": "^1.7.3",
-    "node-dht-sensor": "^0.0.32"
+    "raspi-io": "^8.1.0"
   }
 }
