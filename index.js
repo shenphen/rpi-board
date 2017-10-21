@@ -40,33 +40,37 @@ class Board {
 
         setInterval(() => {
     
-            const data = this.getData();
-            if(data) {
-                setSignals(data);
-                postDataToServer({temperature, humidity, time});
-            }
+            const data = this.getData()
+            .then(data => {
+                this.setSignals(data);
+                // this.postDataToServer({temperature, humidity, time});
+            })
+            .catch(err => {
+                console.log(err);
+            })
     
         }, 1000);
     }
 
     getData() {
-        sensor.read(DHT_SENSOR, DHT_GPIO, (err, temperature, humidity) => {
-            if (!err) {
-    
-                const time = `${Date.now()}`.slice(0, -3);
-    
-                console.log('temp: ' + temperature.toFixed(1) + '°C, ' +
-                    'humidity: ' + humidity.toFixed(1) + '%'
-                );
-    
-                return {temperature, humidity, time};
-    
-            }
-    
-            else {
-                console.log(err);
-                return null;
-            }
+        return new Promise((resolve, reject) => {
+            sensor.read(DHT_SENSOR, DHT_GPIO, (err, temperature, humidity) => {
+                if (!err) {
+        
+                    const time = `${Date.now()}`.slice(0, -3);
+        
+                    console.log('temp: ' + temperature.toFixed(1) + '°C, ' +
+                        'humidity: ' + humidity.toFixed(1) + '%'
+                    );
+        
+                    resolve({temperature, humidity, time});
+        
+                }
+        
+                else {
+                    reject(err);
+                }
+            })
         })
     }
 
@@ -91,9 +95,9 @@ class Board {
             coolerState = temperature > 18;
         }
 
-        heaterState && !prevHeaterState ? this.HEATER.on() : this.HEATER.off();
-        coolerState && !prevCoolerState ? this.COOLER.on() : this.COOLER.off();
-        humiditifierState && !prevHumiditifierState ? this.HUMIDITIFIER.on() : this.HUMIDITIFIER.off();
+        heaterState ? this.HEATER.on() : this.HEATER.off();
+        coolerState ? this.COOLER.on() : this.COOLER.off();
+        humiditifierState ? this.HUMIDITIFIER.on() : this.HUMIDITIFIER.off();
 
         this.state = {
             cooler: coolerState,
@@ -101,7 +105,7 @@ class Board {
             humiditifier: humiditifierState
         }
 
-        console.log({HUMIDITIFIER, heaterState, coolerState});
+        console.log({humiditifier, heaterState, coolerState});
     }
 
     postDataToServer(data) {
@@ -119,7 +123,7 @@ class Board {
         this.HEATER.off();
         this.COOLER.off();
         this.HUMIDITIFIER.off();
-        console.log(`About to exit with code: ${code}`);
+        console.log('Exiting...');
     }
 }
 
