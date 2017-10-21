@@ -20,10 +20,6 @@ class Board {
             io: new Raspi()
         });
 
-        this.HEATER = new five.Led(`GPIO${HEATER_GPIO}`);
-        this.COOLER = new five.Led(`GPIO${COOLER_GPIO}`);
-        this.HUMIDITIFIER = new five.Led(`GPIO${HUMIDITIFIER_GPIO}`);
-
         this.state = {
             cooler: false,
             heater: false,
@@ -37,7 +33,11 @@ class Board {
     }
 
     onReady() {
-       
+
+        this.HEATER = new five.Led(`GPIO${HEATER_GPIO}`);
+        this.COOLER = new five.Led(`GPIO${COOLER_GPIO}`);
+        this.HUMIDITIFIER = new five.Led(`GPIO${HUMIDITIFIER_GPIO}`);
+
         setInterval(() => {
     
             const data = this.getData();
