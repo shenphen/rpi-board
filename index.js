@@ -7,9 +7,9 @@ const moment = require('moment');
 const DHT_SENSOR = process.env.DHT_SENSOR || 11;
 
 const DHT_GPIO = process.env.DHT_GPIO || 21;
-const HEATER_GPIO = process.env.HEATER_GPIO || 17;
-const COOLER_GPIO = process.env.COOLER_GPIO || 22;
-const HUMIDITIFIER_GPIO = process.env.HUMIDITIFIER_GPIO || 27;
+const HEATER_GPIO = process.env.HEATER_GPIO || 19;
+const COOLER_GPIO = process.env.COOLER_GPIO || 13;
+const HUMIDITIFIER_GPIO = process.env.HUMIDITIFIER_GPIO || 26;
 
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000/api/params';
 
@@ -27,7 +27,7 @@ class Board {
         }
 
         this.board.on('ready', this.onReady.bind(this));
-        this.board.on('exit', this.onExit);
+        this.board.on('exit', this.onExit.bind(this));
 
         this.setSignals.bind(this);
     }
