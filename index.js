@@ -7,8 +7,8 @@ const moment = require('moment');
 const DHT_SENSOR = process.env.DHT_SENSOR || 11;
 
 const DHT_GPIO = process.env.DHT_GPIO || 21;
-const HEATER_GPIO = process.env.HEATER_GPIO || 19;
-const COOLER_GPIO = process.env.COOLER_GPIO || 13;
+const HEATER_GPIO = process.env.HEATER_GPIO || 13;
+const COOLER_GPIO = process.env.COOLER_GPIO || 6;
 const HUMIDITIFIER_GPIO = process.env.HUMIDITIFIER_GPIO || 26;
 
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000/api/params';
@@ -43,7 +43,7 @@ class Board {
             const data = this.getData()
             .then(data => {
                 this.setSignals(data);
-                // this.postDataToServer({temperature, humidity, time});
+                this.postDataToServer(data);
             })
             .catch(err => {
                 console.log(err);
@@ -64,7 +64,6 @@ class Board {
                     );
         
                     resolve({temperature, humidity, time});
-        
                 }
         
                 else {
@@ -76,7 +75,8 @@ class Board {
 
     setSignals(data) {
         const { temperature, humidity, time } = data;
-        const daytime = moment.unix(time) < 19 && moment.unix(time) > 9;
+        const hour = moment.unix(time).hour();
+        const daytime = hour < 19 && hour > 9;
         const { heater: prevHeaterState,
                 cooler: prevCollerState,
                 humiditifier: prevHumiditifierState } = this.state;
@@ -105,7 +105,7 @@ class Board {
             humiditifier: humiditifierState
         }
 
-        console.log({humiditifier, heaterState, coolerState});
+        console.log(this.state);
     }
 
     postDataToServer(data) {
