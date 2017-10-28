@@ -40,7 +40,7 @@ class Board {
 
         setInterval(() => {
     
-            const data = this.getData()
+            this.getData()
             .then(data => {
                 this.setSignals(data);
                 this.postDataToServer(data);
@@ -49,7 +49,7 @@ class Board {
                 console.log(err);
             })
     
-        }, 1000);
+        }, 2000);
     }
 
     getData() {
