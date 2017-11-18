@@ -40,7 +40,7 @@ class Board {
         this.socket = io(SERVER_URL);
         this.socket.on('connect', () => console.log('connect'));
         this.socket.on('control', this.onControl.bind(this))
-        this.socket.on('disconnect', () => {this.setState({manualControl: null}); console.log('disconnect')});
+        this.socket.on('disconnect', () => {Object.assign(this.state, {manualControl: null}); console.log('disconnect')});
 
         this.HEATER = new five.Led(`GPIO${HEATER_GPIO}`);
         this.COOLER = new five.Led(`GPIO${COOLER_GPIO}`);
