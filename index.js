@@ -33,14 +33,13 @@ class Board {
         this.board.on('exit', this.onExit.bind(this));
 
         this.setSignals = this.setSignals.bind(this);
-        this.onControl = this.onControl.bind(this);
     }
 
     onReady() {
 
         this.socket = io(SERVER_URL);
         this.socket.on('connect', () => console.log('connect'));
-        this.socket.on('control', this.onControl)
+        this.socket.on('control', this.onControl.bind(this))
         this.socket.on('disconnect', () => {this.setState({manualControl: null}); console.log('disconnect')});
 
         this.HEATER = new five.Led(`GPIO${HEATER_GPIO}`);
@@ -93,8 +92,9 @@ class Board {
         
         let heaterState = null;
         let coolerState = null;
+        let humiditifierState = null;
 
-        if(manualControl) {
+        if(manualControl !== null) {
             heaterState = manualControl.heater;
             coolerState = manualControl.cooler;
             humiditifierState = manualControl.humiditifier;
@@ -126,11 +126,11 @@ class Board {
         coolerState ? this.COOLER.on() : this.COOLER.off();
         humiditifierState ? this.HUMIDITIFIER.on() : this.HUMIDITIFIER.off();
 
-        this.state = {
+        Object.assign(this.state, {
             cooler: coolerState,
             heater: heaterState,
             humiditifier: humiditifierState
-        }
+        });
 
         console.log(this.state);
     }
@@ -149,7 +149,7 @@ class Board {
     onControl(data) {
         if(data.manualControl && data.state) {
             const { cooler, heater, humiditifier } = data.state;
-            this.setState({
+            Object.assign(this.state, {
                 manualControl: {
                     cooler,
                     heater,
@@ -158,9 +158,7 @@ class Board {
             });
         }
         else {
-            this.setState({
-                manualControl: null
-            })
+            Object.assign(this.state, {manualControl: null})
         }
     }
 
