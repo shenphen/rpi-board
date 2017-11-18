@@ -47,16 +47,19 @@ class Board {
         this.HUMIDITIFIER = new five.Led(`GPIO${HUMIDITIFIER_GPIO}`);
 
         setInterval(() => {
-    
+
+            const { manualControl } = this.state;
+
             this.getData()
             .then(data => {
-                this.setSignals(data);
+                manualControl ? this.setManualSignals() : this.setSignals(data);
                 this.postDataToServer(data);
             })
             .catch(err => {
+                manualControl && this.setManualSignals();
                 console.log(err);
             })
-    
+
         }, 2000);
     }
 
@@ -82,57 +85,59 @@ class Board {
     }
 
     setSignals(data) {
+     
+        const signals = this.getSignalsFromData(data);
+        const { heater, cooler, humiditifier } = signals;
+
+        heater ? this.HEATER.on() : this.HEATER.off();
+        cooler ? this.COOLER.on() : this.COOLER.off();
+        humiditifier ? this.HUMIDITIFIER.on() : this.HUMIDITIFIER.off();
+
+        this.socket.emit('control', {
+            autoControl: true,
+            state: signals
+        })
+
+        Object.assign(this.state, signals);
+
+        console.log(this.state);
+    }
+
+    setManualSignals(data) {
+        const { manualControl } = this.state;
+
+        if(manualControl !== null) {
+            const { heater, cooler, humiditifier } = manualControl;
+
+            heater ? this.HEATER.on() : this.HEATER.off();
+            cooler ? this.COOLER.on() : this.COOLER.off();
+            humiditifier ? this.HUMIDITIFIER.on() : this.HUMIDITIFIER.off();
+
+            Object.assign(this.state, manualControl);
+        }
+
+        console.log(this.state);
+    }
+
+    getSignalsFromData(data) {
         const { temperature, humidity, time } = data;
         const hour = moment.unix(time).hour();
         const daytime = hour < 19 && hour > 9;
-        const { heater: prevHeaterState,
-                cooler: prevCollerState,
-                humiditifier: prevHumiditifierState,
-                manualControl } = this.state;
-        
-        let heaterState = null;
-        let coolerState = null;
-        let humiditifierState = null;
 
-        if(manualControl !== null) {
-            heaterState = manualControl.heater;
-            coolerState = manualControl.cooler;
-            humiditifierState = manualControl.humiditifier;
+        const humiditifier = humidity < 60;
+        let heater = null;
+        let cooler = null;
+
+        if(daytime) {
+            heater = temperature < 24;
+            cooler = temperature > 27;
         }
         else {
-            
-            const humiditifierState = humidity < 60;
-    
-            if(daytime) {
-                heaterState = temperature < 24;
-                coolerState = temperature > 27;
-            }
-            else {
-                heaterState = temperature < 16;
-                coolerState = temperature > 18;
-            }
-
-            this.socket.emit('control', {
-                autoControl: true,
-                state: {
-                    heater: heaterState,
-                    cooler: coolerState,
-                    humiditifier: humiditifierState
-                }
-            })
+            heater = temperature < 16;
+            cooler = temperature > 18;
         }
 
-        heaterState ? this.HEATER.on() : this.HEATER.off();
-        coolerState ? this.COOLER.on() : this.COOLER.off();
-        humiditifierState ? this.HUMIDITIFIER.on() : this.HUMIDITIFIER.off();
-
-        Object.assign(this.state, {
-            cooler: coolerState,
-            heater: heaterState,
-            humiditifier: humiditifierState
-        });
-
-        console.log(this.state);
+        return { heater, cooler, humiditifier }
     }
 
     postDataToServer(data) {
