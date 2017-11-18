@@ -111,6 +111,15 @@ class Board {
                 heaterState = temperature < 16;
                 coolerState = temperature > 18;
             }
+
+            this.socket.emit('control', {
+                autoControl: true,
+                state: {
+                    heater: heaterState,
+                    cooler: coolerState,
+                    humiditifier: humiditifierState
+                }
+            })
         }
 
         heaterState ? this.HEATER.on() : this.HEATER.off();
